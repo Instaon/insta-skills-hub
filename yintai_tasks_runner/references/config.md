@@ -47,31 +47,3 @@ config = load_config(
     output_dir="./output",
 )
 ```
-
-## OpenClaw SecretRef 配置
-
-在 `~/.openclaw/openclaw.json` 中检查配置：
-
-```json
-{
-  "skills": {
-    "entries": {
-      "yintai_tasks_runner": {
-        "enabled": true,
-        "secrets": {
-          "YINTAI_APP_KEY": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_KEY"
-          },
-          "YINTAI_APP_SECRET": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_SECRET"
-          }
-        }
-      }
-    }
-  }
-}
-```
