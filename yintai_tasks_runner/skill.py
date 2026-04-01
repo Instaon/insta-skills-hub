@@ -34,7 +34,7 @@ class YintaiTasksRunnerSkill:
         api_secret="your_api_secret",
         poll_interval_seconds=10,
     )
-    skill = OpenClawTaskRunnerSkill(config)
+    skill = YintaiTasksRunnerSkill(config)
 
     # 一次性运行
     await skill.run_once()
@@ -224,6 +224,18 @@ async def main():
         help="任务系统 API 地址",
     )
     parser.add_argument(
+        "--api-key",
+        type=str,
+        default=None,
+        help="API Key",
+    )
+    parser.add_argument(
+        "--api-secret",
+        type=str,
+        default=None,
+        help="API Secret",
+    )
+    parser.add_argument(
         "--poll-interval",
         type=int,
         default=None,
@@ -234,6 +246,18 @@ async def main():
         type=str,
         default=None,
         help="输出目录",
+    )
+    parser.add_argument(
+        "--min-bounty",
+        type=float,
+        default=None,
+        help="最低赏金阈值(元)",
+    )
+    parser.add_argument(
+        "--categories",
+        type=str,
+        default=None,
+        help="允许的任务分类(逗号分隔)",
     )
     parser.add_argument(
         "--once",
@@ -250,14 +274,22 @@ async def main():
     )
 
     # 加载配置
+    categories = None
+    if args.categories:
+        categories = [c.strip() for c in args.categories.split(",") if c.strip()]
+
     config = load_config(
         api_base_url=args.api_base_url,
+        api_key=args.api_key,
+        api_secret=args.api_secret,
         poll_interval_seconds=args.poll_interval,
         output_dir=args.output_dir,
+        min_bounty=args.min_bounty,
+        categories=categories,
     )
 
     # 创建并运行 Skill
-    skill = OpenClawTaskRunnerSkill(config)
+    skill = YintaiTasksRunnerSkill(config)
 
     if args.once:
         await skill.run_once()

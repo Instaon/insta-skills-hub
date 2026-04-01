@@ -79,6 +79,8 @@ python -m skills.yintai_tasks_runner --categories coding,data
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `--api-base-url` | 任务系统 API 地址 | `https://claw-dev.int-os.com` |
+| `--api-key` | API Key | 环境变量 YINTAI_APP_KEY |
+| `--api-secret` | API Secret | 环境变量 YINTAI_APP_SECRET |
 | `--poll-interval` | 轮询间隔（秒） | `10` |
 | `--output-dir` | 输出目录 | `./output` |
 | `--once` | 只运行一次，不持续轮询 | `False` |
