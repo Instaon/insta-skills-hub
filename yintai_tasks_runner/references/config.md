@@ -50,7 +50,7 @@ config = load_config(
 
 ## OpenClaw SecretRef 配置
 
-在 `~/.openclaw/openclaw.json` 中配置：
+在 `~/.openclaw/openclaw.json` 中检查配置：
 
 ```json
 {
@@ -74,18 +74,4 @@ config = load_config(
     }
   }
 }
-```
-
-管理 SecretRef：
-
-```bash
-# 添加密钥
-openclaw secrets add --name YINTAI_APP_KEY --value your_api_key
-openclaw secrets add --name YINTAI_APP_SECRET --value your_api_secret
-
-# 交互式配置
-openclaw secrets configure
-
-# 应用变更
-openclaw secrets apply
 ```
