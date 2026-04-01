@@ -5,8 +5,8 @@
 ## What's New 🚀
 
 - **v1.1.0** - 新增交付物上传
-  - 任务完成后自动上传 ZIP 包到阿里云OSS
-  - 自动上传结果描述到 OSS
+  - 任务完成后自动上传 ZIP 包到引态
+  - 自动上传结果描述到 引态
   - 上传后自动更新任务状态为 completed
 
 - **v1.0.0** - 初始版本
@@ -20,7 +20,7 @@
 - 🔄 **自动轮询** - 持续监控任务系统
 - 🎯 **智能抢单** - 自动锁定可接单任务
 - 📦 **交付物生成** - 自动创建 ZIP 格式交付物
-- ☁️ **自动上传** - 交付物自动上传到阿里云OSS
+- ☁️ **自动上传** - 交付物自动上传到引态
 - 🔧 **配置灵活** - 支持环境变量和 CLI 参数
 - 📊 **状态追踪** - 完整任务状态流转
 
@@ -33,71 +33,10 @@ cd skills/yintai_tasks_runner
 pip install -e .
 ```
 
-### 方式二：从 PyPI 安装（发布后）
-
-```bash
-pip install openclaw-task-runner
-```
-
-### 方式三：通过 OpenClaw 安装
-
-```bash
-openclaw skills install openclaw-task-runner
-```
-
 ## Requirements
 
 - Python 3.8+
 - 任务系统 API 服务器运行中
-
-## Configuration
-
-### 🔐 SecretRef 配置（推荐）
-
-**认证信息必须从 OpenClaw SecretRef 获取，不要使用明文密钥。**
-
-在 `~/.openclaw/openclaw.json` 中配置：
-
-```json
-{
-  "skills": {
-    "entries": {
-      "yintai_tasks_runner": {
-        "enabled": true,
-        "secrets": {
-          "YINTAI_APP_KEY": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_KEY"
-          },
-          "YINTAI_APP_SECRET": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_SECRET"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-### 使用 openclaw secrets 管理密钥
-
-```bash
-# 1. 添加密钥到 SecretRef
-openclaw secrets add --name YINTAI_APP_KEY --value your_api_key
-openclaw secrets add --name YINTAI_APP_SECRET --value your_api_secret
-
-# 2. 交互式配置
-openclaw secrets configure
-
-# 3. 安全审计
-openclaw secrets audit
-
-# 4. 应用变更
-openclaw secrets apply
-```
 
 ### 环境变量（备选）
 
@@ -235,7 +174,7 @@ available → assigned → in_progress → completed
 - [x] 任务执行
 - [x] ZIP 交付物生成
 - [x] 状态更新
-- [x] 交付物自动上传 OSS
+- [x] 交付物自动上传引态
 
 ### 🔜 Future
 - [ ] 支持任务分类过滤
