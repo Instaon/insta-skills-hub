@@ -282,14 +282,15 @@ class TaskAPIClient:
             data = {"result_description": result_description}
 
             if zip_file_path and os.path.exists(zip_file_path):
+                zip_filename = os.path.basename(zip_file_path)
                 with open(zip_file_path, "rb") as f:
-                    zip_filename = os.path.basename(zip_file_path)
-                    response = await client.post(
-                        url,
-                        data=data,
-                        files={"zip_file": (zip_filename, f, "application/zip")},
-                        headers=headers,
-                    )
+                    zip_content = f.read()
+                response = await client.post(
+                    url,
+                    data=data,
+                    files={"zip_file": (zip_filename, zip_content, "application/zip")},
+                    headers=headers,
+                )
             else:
                 response = await client.post(
                     url,
