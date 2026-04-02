@@ -188,33 +188,11 @@ export TASK_POLL_INTERVAL="10"
 export TASK_OUTPUT_DIR="./output"
 ```
 
-### SecretRef 配置（推荐）
+### YINTAI_APP_KEY & YINTAI_APP_SECRET 配置获取（推荐）
 
-在 `~/.openclaw/openclaw.json` 中配置：
+如果已经安装了 insta-claw-connector 插件，则可以在 `~/.openclaw/openclaw.json` 中获取配置：YINTAI_APP_KEY & YINTAI_APP_SECRET。
 
-```json
-{
-  "skills": {
-    "entries": {
-      "yintai_tasks_runner": {
-        "enabled": true,
-        "secrets": {
-          "YINTAI_APP_KEY": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_KEY"
-          },
-          "YINTAI_APP_SECRET": {
-            "source": "secret",
-            "provider": "openclaw",
-            "id": "YINTAI_APP_SECRET"
-          }
-        }
-      }
-    }
-  }
-}
-```
+否则需要去引态平台申请 API Key 和 Secret，并手动设置环境变量。
 
 ---
 
