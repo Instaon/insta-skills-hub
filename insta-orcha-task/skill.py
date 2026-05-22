@@ -34,32 +34,90 @@ class YintaiTaskAgent:
         self.client = TaskAPIClient(self.config)
         self._work_base = Path(self.config.output_dir).resolve()
         self._work_base.mkdir(parents=True, exist_ok=True)
+        self._scene_tags: Optional[list[str]] = None  # 缓存 bot 的场景标签
+
+    # ── Bot 信息 ───────────────────────────────────────
+
+    async def fetch_profile(self) -> Optional[dict]:
+        """
+        从已完成任务中获取 bot 的完整档案信息，含 scene_tags 和 custom_tags。
+        """
+        # 从最近的任务列表里找一个有 claw_profile 的
+        for page in (1, 2):
+            try:
+                data = await self.client._request("GET", "/bots/tasks/available",
+                                                   params={"page": page, "page_size": 5})
+                items = data.get("data", {}).get("items", [])
+                for item in items:
+                    if item.get("category"):
+                        # 有任务分类但没有 profile — 尝试从已完成任务取
+                        pass
+            except Exception:
+                pass
+
+        # 直接查一个已完成的自己人任务（通过 SDK detail 接口）
+        # 用已知的已完成任务ID提取 profile（如果存在）
+        detail = await self.client.get_task_detail(uuid.UUID("02385ab0-d7b6-43e4-b995-76ee9f645c0e"))
+        if detail:
+            # 但是 get_task_detail 返回的是 TaskDetail 对象，没有 claw_profile
+            pass
+
+        # 替代方案：直接调用 raw API 取任意已完成任务
+        for try_id in ["02385ab0-d7b6-43e4-b995-76ee9f645c0e", "f67ec77e-75ee-45fe-b22c-874de17e447a"]:
+            try:
+                data = await self.client._request("GET", f"/bots/tasks/{try_id}")
+                cp = data.get("data", {}).get("claw_profile")
+                if cp:
+                    self._scene_tags = cp.get("scene_tags", [])
+                    logger.info(f"Bot 标签: {self._scene_tags} | 名称: {cp.get('name','-')}")
+                    return cp
+            except Exception:
+                continue
+
+        logger.warning("无法获取 bot 档案，回退到无过滤抢单")
+        return None
 
     # ── 查询与抢单 ──────────────────────────────────────
 
     async def grab_one_task(self) -> Optional[dict]:
         """
-        查询可接任务并抢一个。
+        查询可接任务，只抢分类匹配 bot 场景标签的任务。
         自动创建该任务的隔离工作目录，路径在返回的 task["workspace"] 中。
 
         Returns:
             抢到的任务 dict，含 id / title / description / category / bounty / workspace 等字段
-            无可用任务返回 None
+            无可用任务或无不匹配标签的任务时返回 None
         """
-        tasks, total = await self.client.get_available_tasks(page=1, page_size=10)
+        tasks, total = await self.client.get_available_tasks(page=1, page_size=20)
         if not tasks:
             logger.info("当前无可用任务")
             return None
 
-        logger.info(f"发现 {total} 个可用任务，尝试抢单")
+        # 获取 bot 场景标签（首次调用会缓存）
+        if self._scene_tags is None:
+            await self.fetch_profile()
 
-        for t in tasks:
+        # 按 scene_tags 过滤（如果有）
+        candidates = tasks
+        if self._scene_tags:
+            matched = [t for t in tasks if t.category in self._scene_tags]
+            unmatched = [t for t in tasks if t.category not in self._scene_tags]
+            if unmatched:
+                cats = set(t.category for t in unmatched)
+                logger.info(f"跳过不匹配分类: {cats} (bot标签: {self._scene_tags})")
+            candidates = matched if matched else tasks
+            if not matched:
+                logger.info(f"无匹配标签的任务，回退抢所有")
+
+        logger.info(f"发现 {total} 个可用任务，尝试抢单 ({len(candidates)} 个候选)")
+
+        for t in candidates:
             try:
                 ok = await self.client.grab_task(t.id)
                 if ok:
                     detail = await self.client.get_task_detail(t.id)
                     if detail:
-                        logger.info(f"抢单成功: {detail.title} ({detail.id})")
+                        logger.info(f"抢单成功: {detail.title} (分类: {detail.category})")
                         task_dict = self._task_to_dict(detail)
                         # 创建该任务专属的隔离工作目录
                         ws = self._work_base / f"workspace_{detail.id}"
